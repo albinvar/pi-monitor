@@ -1,57 +1,68 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Activity, Clock, CpuIcon, Fan, HardDrive, MemoryStick as Memory, Settings, Thermometer } from "lucide-react"
-import { useEffect, useState } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Activity,
+  Clock,
+  CpuIcon,
+  Fan,
+  HardDrive,
+  MemoryStick as Memory,
+  Settings,
+  Thermometer,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 
 export default function SystemPage() {
-  const [uptime, setUptime] = useState(0)
-  const [fanSpeed, setFanSpeed] = useState(0)
-  const [temperature, setTemperature] = useState(45)
+  const [uptime, setUptime] = useState(0);
+  const [fanSpeed, setFanSpeed] = useState(0);
+  const [temperature, setTemperature] = useState(45);
 
   useEffect(() => {
-    setUptime(Math.floor(Math.random() * 1000000))
+    setUptime(Math.floor(Math.random() * 1000000));
     const interval = setInterval(() => {
-      setUptime(prev => prev + 1)
-      setTemperature(prev => {
-        const newTemp = prev + (Math.random() * 2 - 1)
-        const temp = Math.min(Math.max(newTemp, 30), 85)
+      setUptime((prev) => prev + 1);
+      setTemperature((prev) => {
+        const newTemp = prev + (Math.random() * 2 - 1);
+        const temp = Math.min(Math.max(newTemp, 30), 85);
         // Update fan speed based on temperature
-        let speed = 0
-        if (temp >= 75) speed = 100
-        else if (temp >= 67.5) speed = 70
-        else if (temp >= 60) speed = 50
-        else if (temp >= 50) speed = 30
-        setFanSpeed(speed)
-        return temp
-      })
-    }, 1000)
-    return () => clearInterval(interval)
-  }, [])
+        let speed = 0;
+        if (temp >= 75) speed = 100;
+        else if (temp >= 67.5) speed = 70;
+        else if (temp >= 60) speed = 50;
+        else if (temp >= 50) speed = 30;
+        setFanSpeed(speed);
+        return temp;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const formatUptime = (seconds: number) => {
-    const days = Math.floor(seconds / 86400)
-    const hours = Math.floor((seconds % 86400) / 3600)
-    const minutes = Math.floor((seconds % 3600) / 60)
-    const secs = seconds % 60
-    return `${days}d ${hours}h ${minutes}m ${secs}s`
-  }
+    const days = Math.floor(seconds / 86400);
+    const hours = Math.floor((seconds % 86400) / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${days}d ${hours}h ${minutes}m ${secs}s`;
+  };
 
   const getFanRotationDuration = () => {
-    if (fanSpeed === 0) return '0s'
-    const maxSpeed = 0.3 // fastest rotation (0.3s per rotation)
-    const minSpeed = 2 // slowest rotation (2s per rotation)
-    return `${minSpeed - ((fanSpeed / 100) * (minSpeed - maxSpeed))}s`
-  }
+    if (fanSpeed === 0) return "0s";
+    const maxSpeed = 0.3; // fastest rotation (0.3s per rotation)
+    const minSpeed = 2; // slowest rotation (2s per rotation)
+    return `${minSpeed - (fanSpeed / 100) * (minSpeed - maxSpeed)}s`;
+  };
 
   return (
     <div className="container mx-auto p-6 space-y-8">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">System Information</h1>
-          <p className="text-muted-foreground">Detailed system statistics and information</p>
+          <p className="text-muted-foreground">
+            Detailed system statistics and information
+          </p>
         </div>
         <Card className="p-4">
           <div className="flex items-center space-x-4">
@@ -59,16 +70,21 @@ export default function SystemPage() {
               <Clock className="h-4 w-4 text-muted-foreground" />
               <div>
                 <p className="text-sm font-medium">Uptime</p>
-                <p className="text-xs text-muted-foreground">{formatUptime(uptime)}</p>
+                <p className="text-xs text-muted-foreground">
+                  {formatUptime(uptime)}
+                </p>
               </div>
             </div>
             <div className="flex items-center space-x-2">
               <div className="relative">
-                <Fan 
+                <Fan
                   className="h-4 w-4 text-muted-foreground"
                   style={{
-                    animation: fanSpeed > 0 ? `spin ${getFanRotationDuration()} linear infinite` : 'none',
-                    opacity: fanSpeed > 0 ? 1 : 0.5
+                    animation:
+                      fanSpeed > 0
+                        ? `spin ${getFanRotationDuration()} linear infinite`
+                        : "none",
+                    opacity: fanSpeed > 0 ? 1 : 0.5,
                   }}
                 />
                 {fanSpeed > 0 && (
@@ -80,7 +96,9 @@ export default function SystemPage() {
               </div>
               <div>
                 <p className="text-sm font-medium">Fan Speed</p>
-                <p className="text-xs text-muted-foreground">{fanSpeed}% ({(fanSpeed * 80).toFixed(0)} RPM)</p>
+                <p className="text-xs text-muted-foreground">
+                  {fanSpeed}% ({(fanSpeed * 80).toFixed(0)} RPM)
+                </p>
               </div>
             </div>
           </div>
@@ -99,7 +117,9 @@ export default function SystemPage() {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">System Load</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  System Load
+                </CardTitle>
                 <Activity className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -109,7 +129,9 @@ export default function SystemPage() {
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">CPU Temperature</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  CPU Temperature
+                </CardTitle>
                 <Thermometer className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -119,7 +141,9 @@ export default function SystemPage() {
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Memory Usage</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Memory Usage
+                </CardTitle>
                 <Memory className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -129,7 +153,9 @@ export default function SystemPage() {
             </Card>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Storage Usage</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Storage Usage
+                </CardTitle>
                 <HardDrive className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
@@ -148,11 +174,15 @@ export default function SystemPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm font-medium">Operating System</p>
-                    <p className="text-sm text-muted-foreground">Raspberry Pi OS (64-bit)</p>
+                    <p className="text-sm text-muted-foreground">
+                      Raspberry Pi OS (64-bit)
+                    </p>
                   </div>
                   <div>
                     <p className="text-sm font-medium">Kernel Version</p>
-                    <p className="text-sm text-muted-foreground">6.1.0-rpi7-rpi-v8</p>
+                    <p className="text-sm text-muted-foreground">
+                      6.1.0-rpi7-rpi-v8
+                    </p>
                   </div>
                   <div>
                     <p className="text-sm font-medium">Architecture</p>
@@ -178,7 +208,9 @@ export default function SystemPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm font-medium">Model</p>
-                    <p className="text-sm text-muted-foreground">Quad-core ARM Cortex-A76</p>
+                    <p className="text-sm text-muted-foreground">
+                      Quad-core ARM Cortex-A76
+                    </p>
                   </div>
                   <div>
                     <p className="text-sm font-medium">Clock Speed</p>
@@ -220,5 +252,5 @@ export default function SystemPage() {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }
