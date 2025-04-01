@@ -1,8 +1,13 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import dynamic from 'next/dynamic';
+
+const Progress = dynamic(() => import('@/components/ui/progress'), {
+  ssr: false, // Disable SSR (Server-Side Rendering) for this component
+});
+
 import {
   Activity,
   Clock,
