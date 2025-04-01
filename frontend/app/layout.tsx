@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google';
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import Navbar from '@/components/navbar';
+import { SystemStatsProvider } from '../context/SystemStatsContext'; 
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -18,7 +19,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+  <SystemStatsProvider>
+<html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider
           attribute="class"
@@ -32,5 +34,6 @@ export default function RootLayout({
         </ThemeProvider>
       </body>
     </html>
+  </SystemStatsProvider>
   );
 }

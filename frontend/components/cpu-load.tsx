@@ -1,51 +1,52 @@
-"use client";
+'use client';
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Fan } from "lucide-react";
+import { useSystemStats } from "../context/SystemStatsContext"; // Import the context
 
 export function CPULoad() {
-  const [load, setLoad] = useState(4);
-  const [temp, setTemp] = useState(48);
-  const [fanSpeed, setFanSpeed] = useState(0);
+  const systemStats = useSystemStats(); // Get system stats from context
+  const [currentRpm, setCurrentRpm] = useState<number>(0); // Ensure RPM is treated as a number
+  const [previousRpm, setPreviousRpm] = useState<number>(0); // Store the previous RPM to smooth out changes
 
+  const MAX_RPM = 9500; // Max RPM value (for calculation purposes)
+  const MAX_TEMP = 85; // Max temperature for the Raspberry Pi
+
+  // Only set fan speed based on fan_speed from response when systemStats is available
   useEffect(() => {
-    const interval = setInterval(() => {
-      setLoad((prev) => {
-        const newLoad = prev + (Math.random() * 10 - 5);
-        return Math.min(Math.max(newLoad, 0), 100);
-      });
-      setTemp((prev) => {
-        const delta = Math.random() * 2 - 1; // ±1°C
-        const newTemp = prev + delta;
-        return Math.min(Math.max(newTemp, 48), 71);
-      });
-    }, 2000);
+    if (systemStats && systemStats.fan_speed) {
+      setPreviousRpm(currentRpm); // Smooth the transition
+      setCurrentRpm(Number(systemStats.fan_speed)); // Ensure fan_speed is treated as a number
+    }
+  }, [systemStats]); // Recalculate RPM when systemStats changes
 
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    let speed = 0;
-    if (temp >= 75) speed = 100;
-    else if (temp >= 67.5) speed = 70;
-    else if (temp >= 60) speed = 50;
-    else if (temp >= 45) speed = 30;
-    setFanSpeed(speed);
-  }, [temp]);
-
+  // Smooth fan rotation duration based on RPM
   const getFanRotationDuration = () => {
-    if (fanSpeed === 0) return "0s";
-    const maxSpeed = 0.3;
-    const minSpeed = 2;
-    const duration = minSpeed - (fanSpeed / 100) * (minSpeed - maxSpeed);
-    return `${duration}s`;
+    if (currentRpm === 0) return "4s"; // Slow transition when fan RPM is 0 (very slow spin to stop)
+    const maxSpeed = 0.4; // Fastest spin speed (rotation speed)
+    const minSpeed = 6; // Slowest speed in seconds
+    const duration = (minSpeed - (currentRpm / MAX_RPM) * (minSpeed - maxSpeed)).toFixed(2);
+    return `${duration}s`; // Duration in seconds, shorter duration = faster spin
   };
 
+  // Calculate RPM change percentage for smooth animation effect
+  const rpmTransition = Math.abs(currentRpm - previousRpm) > 0 ? 0.5 : 0.2; // Adjust for smoother transition
+
+  // Check if systemStats data is available
+  const isDataAvailable = systemStats !== null;
+
+  // Get the CPU load from the API response directly (no multiplication)
+  const cpuLoad = isDataAvailable ? systemStats.cpu_load : 0;
+
+  // Get the current temperature from the system stats
+  const temperature = isDataAvailable ? parseFloat(systemStats.temperature) : 0;
+
+  // Get the color based on temperature (green, orange, red)
   const getTemperatureColor = () => {
-    if (temp >= 75) return "rgb(239 68 68)";
-    if (temp >= 60) return "rgb(234 179 8)";
-    return "rgb(34 197 94)";
+    if (temperature >= 66) return "rgb(239 68 68)"; // red
+    if (temperature >= 52) return "rgb(234 179 8)"; // orange
+    return "rgb(34 197 94)"; // green
   };
 
   return (
@@ -62,15 +63,13 @@ export function CPULoad() {
           <Fan
             className="h-24 w-24 text-muted-foreground"
             style={{
-              animation:
-                fanSpeed > 0
-                  ? `spin ${getFanRotationDuration()} linear infinite`
-                  : "none",
-              opacity: fanSpeed > 0 ? 1 : 0.3,
+              animation: currentRpm > 0 ? `spin ${getFanRotationDuration()} linear infinite` : "none", // Trigger rotation based on RPM
+              opacity: currentRpm > 0 ? 1 : 0.3, // Show fan if RPM > 0
+              transition: `transform ${rpmTransition}s ease-in-out, opacity ${rpmTransition}s ease-in-out`, // Smooth transition for fan animation
             }}
           />
           <p className="text-sm text-muted-foreground">
-            {fanSpeed}% • {(fanSpeed * 80).toFixed(0)} RPM
+            {isDataAvailable ? `${(currentRpm / MAX_RPM * 100).toFixed(0)}% • ${currentRpm.toFixed(0)} RPM` : "-"}
           </p>
         </div>
 
@@ -79,13 +78,13 @@ export function CPULoad() {
           {/* CPU Load */}
           <div>
             <div className="flex justify-between mb-1">
-              <p className="text-2xl font-bold">{load.toFixed(1)}%</p>
+              <p className="text-2xl font-bold">{cpuLoad.toFixed(1)}%</p> {/* Show exact cpu_load value */}
               <p className="text-sm text-muted-foreground">CPU Load</p>
             </div>
             <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
               <div
                 className="h-full bg-primary transition-all duration-500"
-                style={{ width: `${load}%` }}
+                style={{ width: `${cpuLoad}%` }} // Show progress bar based on the real cpu_load value
               />
             </div>
           </div>
@@ -93,15 +92,15 @@ export function CPULoad() {
           {/* Temperature */}
           <div>
             <div className="flex justify-between mb-1">
-              <p className="text-2xl font-bold">{temp.toFixed(1)}°C</p>
+              <p className="text-2xl font-bold">{isDataAvailable ? temperature.toFixed(1) : "0"}°C</p>
               <p className="text-sm text-muted-foreground">Temperature</p>
             </div>
             <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
               <div
                 className="h-full transition-all duration-500"
                 style={{
-                  width: `${((temp - 30) / (85 - 30)) * 100}%`,
-                  backgroundColor: getTemperatureColor(),
+                  width: `${isDataAvailable ? ((temperature / MAX_TEMP) * 100) : 0}%`, // Progress bar from 0 to 100 based on temperature
+                  backgroundColor: getTemperatureColor(), // Dynamic color based on temperature
                 }}
               />
             </div>

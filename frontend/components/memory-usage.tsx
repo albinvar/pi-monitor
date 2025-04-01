@@ -1,24 +1,24 @@
-"use client";
+'use client';
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MemoryStick as Memory } from "lucide-react";
+import { useSystemStats } from "../context/SystemStatsContext"; // Assuming you are using context to fetch system stats
 
 export function MemoryUsage() {
-  const [used, setUsed] = useState(0.58);
-  const total = 4; // 8GB RAM
+  const systemStats = useSystemStats(); // Get system stats from context or API
+  const [used, setUsed] = useState<number>(0); // Initialize used memory as 0
+  const [total, setTotal] = useState<number>(0); // Initialize total memory as 0
 
+  // Fetch memory stats when systemStats is available
   useEffect(() => {
-    const interval = setInterval(() => {
-      setUsed((prev) => {
-        const newUsed = prev + (Math.random() * 0.6 - 0.2);
-        return Math.min(Math.max(newUsed, 0), total);
-      });
-    }, 2000);
+    if (systemStats && systemStats.total_memory && systemStats.used_memory) {
+      setTotal(systemStats.total_memory / (1024 ** 3)); // Convert bytes to GB
+      setUsed(systemStats.used_memory / (1024 ** 3)); // Convert bytes to GB
+    }
+  }, [systemStats]);
 
-    return () => clearInterval(interval);
-  }, []);
-
+  // Calculate the color based on memory usage percentage
   const getMemoryColor = () => {
     const percentage = (used / total) * 100;
     if (percentage >= 90) return "rgb(239 68 68)"; // red
@@ -46,7 +46,7 @@ export function MemoryUsage() {
           <div>
             <div className="flex justify-between mb-1">
               <p className="text-2xl font-bold">
-                {used.toFixed(1)}GB / {total}GB
+                {used.toFixed(1)}GB / {total.toFixed(1)}GB
               </p>
               <p className="text-sm text-muted-foreground">
                 {((used / total) * 100).toFixed(1)}% Used
