@@ -35,9 +35,8 @@ export const SystemStatsProvider: React.FC<SystemStatsProviderProps> = ({ childr
   // Function to fetch system stats from the backend
   const fetchSystemStats = async () => {
     try {
-      const response = await fetch('http://100.100.10.10:8000/api/system-stats');
+      const response = await fetch('https://api-pi.albinvar.in/api/system-stats');
       const data = await response.json();
-      console.log(data);
       setSystemStats(data);
     } catch (error) {
       console.error('Error fetching system stats:', error);
