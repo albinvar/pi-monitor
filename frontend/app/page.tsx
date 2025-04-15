@@ -11,9 +11,9 @@ export default function Home() {
   return (
     <div className="container mx-auto p-6 space-y-8">
       <div className="flex flex-col space-y-4">
-        <h1 className="text-4xl font-bold">Raspberry Pi 5 Monitor</h1>
+        <h1 className="text-4xl font-bold">Albin's Home Server</h1>
         <p className="text-muted-foreground">
-          Real-time monitoring dashboard for your Raspberry Pi 5
+          Real-time monitoring dashboard for Raspberry Pi 5
         </p>
       </div>
 
@@ -69,16 +69,16 @@ export default function Home() {
         <MemoryUsage />
       </div>
 
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <LiveCCTV />
+        <ServicesStatus />
+      </div>
+
       <div className="grid gap-4">
         <IoTDevices />
       </div>
 
       <NetworkStatus />
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <LiveCCTV />
-        <ServicesStatus />
-      </div>
 
       <div className="grid gap-4"></div>
     </div>

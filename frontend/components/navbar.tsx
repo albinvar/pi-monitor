@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { CircuitBoard } from "lucide-react"
-import { ModeToggle } from "./mode-toggle"
-import Link from "next/link"
+import { CircuitBoard } from "lucide-react";
+import { ModeToggle } from "./mode-toggle";
+import Link from "next/link";
 
 export default function Navbar() {
   return (
@@ -10,10 +10,10 @@ export default function Navbar() {
       <div className="flex h-16 items-center px-4">
         <Link href="/" className="flex items-center space-x-2">
           <CircuitBoard className="h-6 w-6 text-red-500" />
-          <span className="font-bold">Pi Monitor</span>
+          <span className="font-bold">Homelab (PI5)</span>
         </Link>
         <div className="ml-auto flex items-center space-x-4">
-          <Link href="/system" className="text-sm font-medium transition-colors hover:text-primary">
+          {/* <Link href="/system" className="text-sm font-medium transition-colors hover:text-primary">
             System
           </Link>
           <Link href="/network" className="text-sm font-medium transition-colors hover:text-primary">
@@ -24,10 +24,10 @@ export default function Navbar() {
           </Link>
           <Link href="/processes" className="text-sm font-medium transition-colors hover:text-primary">
             Processes
-          </Link>
+          </Link> */}
           <ModeToggle />
         </div>
       </div>
     </nav>
-  )
+  );
 }

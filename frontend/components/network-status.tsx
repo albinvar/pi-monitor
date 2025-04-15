@@ -40,11 +40,12 @@ export function NetworkStatus() {
   });
 
   const [tunnels, setTunnels] = useState<CloudflaredTunnel[]>([
-    { domain: "iot.albinvar.in", status: "up" },
     { domain: "dns.albinvar.in", status: "up" },
-    { domain: "cctv.albinvar.in", status: "down" },
+    { domain: "cctv.albinvar.in", status: "up" },
+    { domain: "vnc.albinvar.in", status: "up" },
     { domain: "pi.albinvar.in", status: "up" },
-    { domain: "container.albinvar.in", status: "up" },
+    { domain: "docker.albinvar.in", status: "up" },
+    { domain: "iot.albinvar.in", status: "down" },
   ]);
 
   const [adguard, setAdguard] = useState<AdGuardStats>({
